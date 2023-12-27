@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Timers;
-using Sirenix.OdinInspector;
+using Unity.Collections;
+//using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Image = UnityEngine.UI.Image;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
@@ -47,14 +47,14 @@ public struct Anim_Axis
 
 public class PAnim_Recoil : MonoBehaviour
 {
-    [Button("Fire")]
+    //[Button("Fire")]
     void Fire()
     {
         timer = 0;
         randomInvert = Random.value < 0.5f;
     }
     
-    [Button("Fire Toggle")]
+    //[Button("Fire Toggle")]
     public void ToggleFire()
     {
         if (isFiring)
@@ -85,20 +85,20 @@ public class PAnim_Recoil : MonoBehaviour
     public Anim_Type AnimPosition;
     public Anim_Type AnimRotation;
     
-    [FoldoutGroup("Debug")]
+    //[FoldoutGroup("Debug")]
     [SerializeField] private bool isFiring;
-    [FoldoutGroup("Debug")]
+    //[FoldoutGroup("Debug")]
     [SerializeField] private bool Recoil;
-    [FoldoutGroup("Debug")]
+    //[FoldoutGroup("Debug")]
     [SerializeField] private float timer;
-    [FoldoutGroup("Debug")]
+    //[FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float TimeEndPosX;
-    [FoldoutGroup("Debug")]
+    //[FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float TimeEndPosY;
-    [FoldoutGroup("Debug")]
+    //[FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float TimeEndPosZ;
     
-    [FoldoutGroup("Debug")]
+    //[FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float maxEndTime;
     
     private Vector3 defaultLocalPos;
