@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68416fb4e1beee943809899540cb63a4, type: 3}
+  m_Name: Rifle
+  m_EditorClassIdentifier: 
+  name: AK69
+  weaponType: 0
+  AnimPosition:
+    Scale: 1
+    AxisX:
+      AxisScale: 1
+      AxisCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      Invert: 0
+      Random: 0
+    AxisY:
+      AxisScale: 1
+      AxisCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      Invert: 0
+      Random: 0
+    AxisZ:
+      AxisScale: 1
+      AxisCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      Invert: 0
+      Random: 0
+  AnimRotation:
+    Scale: 1
+    AxisX:
+      AxisScale: 1
+      AxisCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      Invert: 0
+      Random: 0
+    AxisY:
+      AxisScale: 1
+      AxisCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      Invert: 0
+      Random: 0
+    AxisZ:
+      AxisScale: 1
+      AxisCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      Invert: 0
+      Random: 0
