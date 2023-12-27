@@ -3,102 +3,96 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Timers;
-using Unity.Collections;
-//using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
-[Serializable]
-public struct Anim_Type
-{
-    public float Scale;
-    public Anim_Axis AxisX;
-    public Anim_Axis AxisY;
-    public Anim_Axis AxisZ;
-
-    public Anim_Type(float scale)
-    {
-        Scale = scale;
-        AxisX = new Anim_Axis(1f);
-        AxisY = new Anim_Axis(1f);
-        AxisZ = new Anim_Axis(1f);
-    }
-}
-
-[Serializable]
-public struct Anim_Axis
-{
-    public float AxisScale;
-    public AnimationCurve AxisCurve;
-    public bool Invert;
-    public bool Random;
-    
-    public Anim_Axis(float axisScale)
-    {
-        AxisScale = axisScale;
-        AxisCurve = null;
-        Invert = false;
-        Random = false;
-    }
-}
-
 public class PAnim_Recoil : MonoBehaviour
 {
-    //[Button("Fire")]
+    [Button("Fire")]
     void Fire()
     {
         timer = 0;
         randomInvert = Random.value < 0.5f;
+
+        if(TestMode) GenerateRandomCurves();
     }
     
-    //[Button("Fire Toggle")]
-    public void ToggleFire()
+    [Button("Fire Toggle")]
+    public void ToggleFire(bool toggle = true)
     {
-        if (isFiring)
+        if (!toggle)
         {
             StopFiring();
         }
         else
         {
+            StopFiring();
             Fire();
             StartFiring();
         }
     }
     private void StartFiring()
     {
-        isFiring = true;
+        autoFire = true;
         InvokeRepeating("Fire", FireRate, FireRate);
     }
     private void StopFiring()
     {
-        isFiring = false;
+        autoFire = false;
         CancelInvoke("Fire");
     }
-    
-    
+
+    private void OnValidate()
+    {
+        if (autoFire)
+        {
+            StopFiring();
+            Fire();
+            StartFiring();   
+        }
+    }
+
+
     [SerializeField] private float FireRate;
     public float slowmoRate = 1;
 
     public Anim_Type AnimPosition;
     public Anim_Type AnimRotation;
     
-    //[FoldoutGroup("Debug")]
-    [SerializeField] private bool isFiring;
-    //[FoldoutGroup("Debug")]
+    [FoldoutGroup("Test")] 
+    [SerializeField] private AnimationCurve GenCurve_PosX;
+    [FoldoutGroup("Test")] 
+    [SerializeField] private AnimationCurve GenCurve_PosY;
+    [FoldoutGroup("Test")] 
+    [SerializeField] private AnimationCurve GenCurve_PosZ;
+    [FoldoutGroup("Test")] 
+    [SerializeField] private AnimationCurve GenCurve_RotX;
+    [FoldoutGroup("Test")] 
+    [SerializeField] private AnimationCurve GenCurve_RotY;
+    [FoldoutGroup("Test")] 
+    [SerializeField] private AnimationCurve GenCurve_RotZ;
+
+    [FoldoutGroup("Test")] 
+    [SerializeField] private bool TestMode = false;
+    
+    [FoldoutGroup("Debug")]
+    [SerializeField] private bool autoFire;
+    [FoldoutGroup("Debug")]
     [SerializeField] private bool Recoil;
-    //[FoldoutGroup("Debug")]
+    [FoldoutGroup("Debug")]
     [SerializeField] private float timer;
-    //[FoldoutGroup("Debug")]
+    [FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float TimeEndPosX;
-    //[FoldoutGroup("Debug")]
+    [FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float TimeEndPosY;
-    //[FoldoutGroup("Debug")]
+    [FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float TimeEndPosZ;
     
-    //[FoldoutGroup("Debug")]
+    [FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private float maxEndTime;
     
     private Vector3 defaultLocalPos;
@@ -145,21 +139,39 @@ public class PAnim_Recoil : MonoBehaviour
 
     void Kickback()
     {
+        if(timer > maxEndTime + 1) return;
+        
         if (timer > FireRate) Recoil = false;
         else Recoil = true;
         
         
         timer += Time.fixedDeltaTime * slowmoRate;
-        
-        // Position
-        addPos.x = CalculateAxisValue(AnimPosition, AnimPosition.AxisX, randomInvert);
-        addPos.y = CalculateAxisValue(AnimPosition, AnimPosition.AxisY, randomInvert);
-        addPos.z = CalculateAxisValue(AnimPosition, AnimPosition.AxisZ, randomInvert);
 
-        // Rotation
-        addRot.x = CalculateAxisValue(AnimRotation, AnimRotation.AxisX, randomInvert) * Mathf.Rad2Deg;
-        addRot.y = CalculateAxisValue(AnimRotation, AnimRotation.AxisY, randomInvert) * Mathf.Rad2Deg;
-        addRot.z = CalculateAxisValue(AnimRotation, AnimRotation.AxisZ, randomInvert) * Mathf.Rad2Deg;
+        if (TestMode)
+        {
+            // Position Test
+            addPos.x = CalculateAxisValue_Test(GenCurve_PosX, false);
+            addPos.y = CalculateAxisValue_Test(GenCurve_PosY, false);
+            addPos.z = CalculateAxisValue_Test(GenCurve_PosZ, true, true);
+        
+            // Rotation Test
+            addRot.x = CalculateAxisValue_Test(GenCurve_RotX) * Mathf.Rad2Deg;
+            addRot.y = CalculateAxisValue_Test(GenCurve_RotY) * Mathf.Rad2Deg;
+            addRot.z = CalculateAxisValue_Test(GenCurve_RotZ) * Mathf.Rad2Deg;
+        }
+        else
+        {
+            // Position
+            addPos.x = CalculateAxisValue(AnimPosition, AnimPosition.AxisX, randomInvert);
+            addPos.y = CalculateAxisValue(AnimPosition, AnimPosition.AxisY, randomInvert);
+            addPos.z = CalculateAxisValue(AnimPosition, AnimPosition.AxisZ, randomInvert);
+
+            // Rotation
+            addRot.x = CalculateAxisValue(AnimRotation, AnimRotation.AxisX, randomInvert) * Mathf.Rad2Deg;
+            addRot.y = CalculateAxisValue(AnimRotation, AnimRotation.AxisY, randomInvert) * Mathf.Rad2Deg;
+            addRot.z = CalculateAxisValue(AnimRotation, AnimRotation.AxisZ, randomInvert) * Mathf.Rad2Deg;
+        }
+        
         
         transform.localRotation = Quaternion.Euler(defaultLocalRot + addRot);
         transform.localPosition = defaultLocalPos + addPos;
@@ -176,5 +188,72 @@ public class PAnim_Recoil : MonoBehaviour
         {
             return axis.Invert ? -axis.AxisCurve.Evaluate(timer) * type.Scale * axis.AxisScale : axis.AxisCurve.Evaluate(timer) * type.Scale * axis.AxisScale;
         }
+    }
+
+    float CalculateAxisValue_Test(AnimationCurve curve, bool toggle = true, bool Invert = false)
+    {
+        if (!toggle || curve == null || curve.length <= 0) return 0;
+        
+        return randomInvert ? -curve.Evaluate(timer) * 10 : curve.Evaluate(timer) * 10;
+    }
+
+    [Button("Gen Curve")]
+    void GenerateRandomCurves()
+    {
+        /* nope, not gonna use it cuz too lazy, haha
+        AnimPosition.AxisX.AxisCurve = GenerateRandomCurve_Curve(AnimPosition.AxisX.AxisCurve, AnimPosition.AxisX.AxisCurve2);
+        AnimPosition.AxisY.AxisCurve = GenerateRandomCurve_Curve(AnimPosition.AxisY.AxisCurve, AnimPosition.AxisY.AxisCurve2);
+        AnimPosition.AxisZ.AxisCurve = GenerateRandomCurve_Curve(AnimPosition.AxisZ.AxisCurve, AnimPosition.AxisZ.AxisCurve2);
+
+        AnimRotation.AxisX.AxisCurve = GenerateRandomCurve_Curve(AnimRotation.AxisX.AxisCurve, AnimRotation.AxisX.AxisCurve2);
+        AnimRotation.AxisY.AxisCurve = GenerateRandomCurve_Curve(AnimRotation.AxisY.AxisCurve, AnimRotation.AxisY.AxisCurve2);
+        AnimRotation.AxisZ.AxisCurve = GenerateRandomCurve_Curve(AnimRotation.AxisZ.AxisCurve, AnimRotation.AxisZ.AxisCurve2);
+        */
+
+        GenCurve_PosX = GenerateRandomCurve(AnimPosition.AxisX.AxisCurve, -0.02f, 0.02f);
+        GenCurve_PosY = GenerateRandomCurve(AnimPosition.AxisY.AxisCurve, -0.02f, 0.02f);
+        GenCurve_PosZ = GenerateRandomCurve(AnimPosition.AxisZ.AxisCurve, -0.02f, 0.02f);
+        
+        GenCurve_RotX = GenerateRandomCurve(AnimRotation.AxisX.AxisCurve, -0.02f, 0.02f);
+        GenCurve_RotY = GenerateRandomCurve(AnimRotation.AxisY.AxisCurve, -0.02f, 0.02f);
+        GenCurve_RotZ = GenerateRandomCurve(AnimRotation.AxisZ.AxisCurve, -0.02f, 0.02f);
+    }
+    AnimationCurve GenerateRandomCurve_Curve(AnimationCurve curve1, AnimationCurve curve2)
+    {
+        AnimationCurve randomCurve = new AnimationCurve();
+
+        int numPoints = Mathf.Min(curve1.length, curve2.length);
+
+        for (int i = 0; i < numPoints; i++)
+        {
+            float randomTime = Random.Range(curve1.keys[i].time, curve2.keys[i].time);
+            float randomValue = Random.Range(curve1.keys[i].value, curve2.keys[i].value);
+            randomCurve.AddKey(randomTime, randomValue);
+        }
+
+        return randomCurve;
+    }
+    AnimationCurve GenerateRandomCurve(AnimationCurve curve, float range_Min, float range_Max)
+    {
+        if (curve.length <= 0) return null;
+        
+        AnimationCurve randomCurve = new AnimationCurve();
+
+        // Add keyframe at time 0 with value 0
+        randomCurve.AddKey(new Keyframe(0f, 0f));
+        
+        for (int i = 0; i < curve.keys.Length; i++)
+        {
+            Keyframe theKey = curve.keys[i];
+            
+            float randomTime = theKey.time;
+            theKey.value += Random.Range(range_Min, range_Max);
+
+            if (i == curve.keys.Length - 1) theKey.value = 0;
+            
+            randomCurve.AddKey(theKey);
+        }
+        
+        return randomCurve;
     }
 }

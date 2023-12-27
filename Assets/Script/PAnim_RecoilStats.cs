@@ -1,12 +1,5 @@
 using UnityEngine;
 
-public enum WeaponType
-{
-    Rifle,
-    Shotgun,
-    Pistol
-}
-
 [CreateAssetMenu(fileName = "RecoilSettings", menuName = "ScriptableObjects/RecoilSettings")]
 public class RecoilSettings : ScriptableObject
 {
