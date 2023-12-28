@@ -17,8 +17,8 @@ public class PAnim_Recoil : MonoBehaviour
     {
         timer = 0;
         randomInvert = Random.value < 0.5f;
-
-        if(TestMode) GenerateRandomCurves();
+        
+        if(GenerateGraphMode) GenerateRandomCurves();
     }
     
     [Button("Fire Toggle")]
@@ -62,22 +62,9 @@ public class PAnim_Recoil : MonoBehaviour
 
     public Anim_Type AnimPosition;
     public Anim_Type AnimRotation;
-    
-    [FoldoutGroup("Test")] 
-    [SerializeField] private AnimationCurve GenCurve_PosX;
-    [FoldoutGroup("Test")] 
-    [SerializeField] private AnimationCurve GenCurve_PosY;
-    [FoldoutGroup("Test")] 
-    [SerializeField] private AnimationCurve GenCurve_PosZ;
-    [FoldoutGroup("Test")] 
-    [SerializeField] private AnimationCurve GenCurve_RotX;
-    [FoldoutGroup("Test")] 
-    [SerializeField] private AnimationCurve GenCurve_RotY;
-    [FoldoutGroup("Test")] 
-    [SerializeField] private AnimationCurve GenCurve_RotZ;
 
     [FoldoutGroup("Test")] 
-    [SerializeField] private bool TestMode = false;
+    [SerializeField] private bool GenerateGraphMode = false;
     
     [FoldoutGroup("Debug")]
     [SerializeField] private bool autoFire;
@@ -139,7 +126,7 @@ public class PAnim_Recoil : MonoBehaviour
 
     void Kickback()
     {
-        if(timer > maxEndTime + 1) return;
+        if (timer > maxEndTime + 1) return;
         
         if (timer > FireRate) Recoil = false;
         else Recoil = true;
@@ -147,17 +134,17 @@ public class PAnim_Recoil : MonoBehaviour
         
         timer += Time.fixedDeltaTime * slowmoRate;
 
-        if (TestMode)
+        if (GenerateGraphMode)
         {
             // Position Test
-            addPos.x = CalculateAxisValue_Test(GenCurve_PosX, false);
-            addPos.y = CalculateAxisValue_Test(GenCurve_PosY, false);
-            addPos.z = CalculateAxisValue_Test(GenCurve_PosZ, true, true);
+            addPos.x = CalculateAxisValue_RandomType(AnimPosition, AnimPosition.AxisX, randomInvert);
+            addPos.y = CalculateAxisValue_RandomType(AnimPosition, AnimPosition.AxisY, randomInvert);
+            addPos.z = CalculateAxisValue_RandomType(AnimPosition, AnimPosition.AxisZ, randomInvert);
         
             // Rotation Test
-            addRot.x = CalculateAxisValue_Test(GenCurve_RotX) * Mathf.Rad2Deg;
-            addRot.y = CalculateAxisValue_Test(GenCurve_RotY) * Mathf.Rad2Deg;
-            addRot.z = CalculateAxisValue_Test(GenCurve_RotZ) * Mathf.Rad2Deg;
+            addRot.x = CalculateAxisValue_RandomType(AnimRotation, AnimRotation.AxisX, randomInvert) * Mathf.Rad2Deg;
+            addRot.y = CalculateAxisValue_RandomType(AnimRotation, AnimRotation.AxisY, randomInvert) * Mathf.Rad2Deg;
+            addRot.z = CalculateAxisValue_RandomType(AnimRotation, AnimRotation.AxisZ, randomInvert) * Mathf.Rad2Deg;
         }
         else
         {
@@ -172,9 +159,10 @@ public class PAnim_Recoil : MonoBehaviour
             addRot.z = CalculateAxisValue(AnimRotation, AnimRotation.AxisZ, randomInvert) * Mathf.Rad2Deg;
         }
         
-        
-        transform.localRotation = Quaternion.Euler(defaultLocalRot + addRot);
-        transform.localPosition = defaultLocalPos + addPos;
+        if(AnimPosition.Toggle)
+            transform.localPosition = defaultLocalPos + addPos;
+        if(AnimRotation.Toggle) 
+            transform.localRotation = Quaternion.Euler(defaultLocalRot + addRot);
         
     }
     
@@ -189,12 +177,18 @@ public class PAnim_Recoil : MonoBehaviour
             return axis.Invert ? -axis.AxisCurve.Evaluate(timer) * type.Scale * axis.AxisScale : axis.AxisCurve.Evaluate(timer) * type.Scale * axis.AxisScale;
         }
     }
-
-    float CalculateAxisValue_Test(AnimationCurve curve, bool toggle = true, bool Invert = false)
+    
+    float CalculateAxisValue_RandomType(Anim_Type type, Anim_Axis axis, bool randomInvert = false)
     {
-        if (!toggle || curve == null || curve.length <= 0) return 0;
-        
-        return randomInvert ? -curve.Evaluate(timer) * 10 : curve.Evaluate(timer) * 10;
+        if (!axis.Toggle || axis.GenCurve == null || axis.AxisCurve.length <= 0) return 0;
+        if (axis.Random)
+        {
+            return randomInvert ? -axis.GenCurve.Evaluate(timer) * type.Scale * axis.AxisScale : axis.GenCurve.Evaluate(timer) * type.Scale * axis.AxisScale;
+        }
+        else
+        {
+            return axis.Invert ? -axis.GenCurve.Evaluate(timer) * type.Scale * axis.AxisScale : axis.GenCurve.Evaluate(timer) * type.Scale * axis.AxisScale;
+        }
     }
 
     [Button("Gen Curve")]
@@ -210,13 +204,13 @@ public class PAnim_Recoil : MonoBehaviour
         AnimRotation.AxisZ.AxisCurve = GenerateRandomCurve_Curve(AnimRotation.AxisZ.AxisCurve, AnimRotation.AxisZ.AxisCurve2);
         */
 
-        GenCurve_PosX = GenerateRandomCurve(AnimPosition.AxisX.AxisCurve, -0.02f, 0.02f);
-        GenCurve_PosY = GenerateRandomCurve(AnimPosition.AxisY.AxisCurve, -0.02f, 0.02f);
-        GenCurve_PosZ = GenerateRandomCurve(AnimPosition.AxisZ.AxisCurve, -0.02f, 0.02f);
+        AnimPosition.AxisX.GenCurve = GenerateRandomCurve(AnimPosition.AxisX.AxisCurve, -0.02f, 0.02f, AnimPosition.AxisX.Toggle);
+        AnimPosition.AxisY.GenCurve = GenerateRandomCurve(AnimPosition.AxisY.AxisCurve, -0.02f, 0.02f, AnimPosition.AxisY.Toggle);
+        AnimPosition.AxisZ.GenCurve = GenerateRandomCurve(AnimPosition.AxisZ.AxisCurve, -0.02f, 0.02f, AnimPosition.AxisZ.Toggle);
         
-        GenCurve_RotX = GenerateRandomCurve(AnimRotation.AxisX.AxisCurve, -0.02f, 0.02f);
-        GenCurve_RotY = GenerateRandomCurve(AnimRotation.AxisY.AxisCurve, -0.02f, 0.02f);
-        GenCurve_RotZ = GenerateRandomCurve(AnimRotation.AxisZ.AxisCurve, -0.02f, 0.02f);
+        AnimRotation.AxisX.GenCurve = GenerateRandomCurve(AnimRotation.AxisX.AxisCurve, -0.005f, 0.005f, AnimRotation.AxisX.Toggle);
+        AnimRotation.AxisY.GenCurve = GenerateRandomCurve(AnimRotation.AxisY.AxisCurve, -0.005f, 0.005f, AnimRotation.AxisY.Toggle);
+        AnimRotation.AxisZ.GenCurve = GenerateRandomCurve(AnimRotation.AxisZ.AxisCurve, -0.005f, 0.005f, AnimRotation.AxisZ.Toggle);
     }
     AnimationCurve GenerateRandomCurve_Curve(AnimationCurve curve1, AnimationCurve curve2)
     {
@@ -233,14 +227,16 @@ public class PAnim_Recoil : MonoBehaviour
 
         return randomCurve;
     }
-    AnimationCurve GenerateRandomCurve(AnimationCurve curve, float range_Min, float range_Max)
+    AnimationCurve GenerateRandomCurve(AnimationCurve curve, float range_Min, float range_Max, bool toggle)
     {
         if (curve.length <= 0) return null;
         
         AnimationCurve randomCurve = new AnimationCurve();
-
+        if (!toggle) return randomCurve;
+        
         // Add keyframe at time 0 with value 0
         randomCurve.AddKey(new Keyframe(0f, 0f));
+
         
         for (int i = 0; i < curve.keys.Length; i++)
         {

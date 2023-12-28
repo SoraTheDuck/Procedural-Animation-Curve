@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
@@ -28,6 +30,8 @@ public struct Anim_Axis
     public bool Toggle;
     public float AxisScale;
     public AnimationCurve AxisCurve;
+    [SerializeField] public AnimationCurve GenCurve;
+    
     public bool Invert;
     public bool Random;
     
@@ -36,6 +40,8 @@ public struct Anim_Axis
         Toggle = true;
         AxisScale = axisScale;
         AxisCurve = null;
+        GenCurve = null;
+        
         Invert = false;
         Random = false;
     }
