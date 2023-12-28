@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
 
@@ -27,13 +28,19 @@ public struct Anim_Type
 [Serializable]
 public struct Anim_Axis
 {
-    public bool Toggle;
     public float AxisScale;
     public AnimationCurve AxisCurve;
     [SerializeField] public AnimationCurve GenCurve;
     
-    public bool Invert;
-    public bool Random;
+    [FoldoutGroup("Settings")] public bool Toggle;
+    [FoldoutGroup("Settings")] public bool Invert;
+    [FoldoutGroup("Settings")] public bool Random;
+    [FoldoutGroup("Settings")][Button("Clear")] void ClearCurve() => RemoveAllKeyframes(GenCurve);
+    [FoldoutGroup("Settings")] public float RandomMin;
+    [FoldoutGroup("Settings")] public float RandomMax;
+    [FoldoutGroup("Settings")] public float ScaleRandom;
+
+    
     
     public Anim_Axis(float axisScale)
     {
@@ -44,6 +51,16 @@ public struct Anim_Axis
         
         Invert = false;
         Random = false;
+        RandomMin = -0.02f;
+        RandomMax = 0.03f;
+        ScaleRandom = 1;
+    }
+    
+    void RemoveAllKeyframes(AnimationCurve curve)
+    {
+        List<Keyframe> keyframes = new List<Keyframe>(curve.keys);
+        keyframes.Clear();
+        curve.keys = keyframes.ToArray();
     }
 }
 
