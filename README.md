@@ -15,3 +15,4 @@ Indev:
 - Shoot recoil pattern with curve
 - Cam Shake Direction event for reload (add random offset)
 - Stackable Animation
+- Presets
